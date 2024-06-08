@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Responsive Chatbot UI</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+      }
+      .chatbot-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        max-width: 100%;
+      }
+      .chatbot-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 50px;
+        height: 50px;
+        background-color: #5ac8fa;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .chatbot-button img {
+        width: 24px;
+        height: 24px;
+      }
+      .chatbot {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        height: 500px;
+        max-height: 80vh;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .chatbot-header {
+        background: linear-gradient(135deg, #4e9af1, #5ac8fa);
+        color: white;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+      }
+      .header-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      .header-logo {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+      }
+      .header-name {
+        flex-grow: 1;
+      }
+      .header-fixedContent {
+        margin: 0;
+        font-size: 14px;
+      }
+      .header-companyName {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .header-minimize {
+        cursor: pointer;
+        font-size: 20px;
+      }
+      .chatbot-body {
+        flex-grow: 1;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .message {
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        max-width: 80%;
+      }
+      .customer-message {
+        align-self: flex-end;
+        background-color: #d1eaff;
+      }
+      .bot-message {
+        align-self: flex-start;
+        background-color: #e6e6e6;
+      }
+      .chatbot-footer {
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+      }
+      .userInput {
+        flex-grow: 1;
+        border: none;
+        padding: 10px;
+        border-radius: 20px;
+        background-color: #f0f0f0;
+        margin-right: 10px;
+      }
+      .chatbot-misActions {
+        display: flex;
+        gap: 5px;
+      }
+      .chatbot-misActions button {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chatbot-container">
+      <div class="chatbot-button" onclick="toggleChatbot()">
+        <img
+          src="https://t3.ftcdn.net/jpg/05/33/02/64/360_F_533026496_rQB56dghIVTe3NlYGIXnSVagWZzOxzJh.jpg"
+          alt="Chat Icon"
+        />
+      </div>
+      <div class="chatbot">
+        <div class="chatbot-header">
+          <div class="header-content">
+            <img
+              src="https://t3.ftcdn.net/jpg/05/33/02/64/360_F_533026496_rQB56dghIVTe3NlYGIXnSVagWZzOxzJh.jpg"
+              class="header-logo"
+              alt="Avatar"
+            />
+            <div class="header-name">
+              <p class="header-fixedContent">Chat with</p>
+              <p class="header-companyName">Nimmo</p>
+            </div>
+            <div class="header-minimize" onclick="toggleChatbot()">X</div>
+          </div>
+        </div>
+        <div class="chatbot-body" id="chatbot-body">
+          <!-- Initial messages will be appended here -->
+        </div>
+        <div class="chatbot-footer">
+          <input
+            type="text"
+            class="userInput"
+            id="userInput"
+            placeholder="Enter your message..."
+            onkeypress="handleKeyPress(event)"
+          />
+          <div class="chatbot-misActions">
+            <button onclick="document.getElementById('fileInput').click()">
+              📎
+            </button>
+          </div>
+          <input
+            type="file"
+            id="fileInput"
+            style="display: none"
+            onchange="uploadFile()"
+          />
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const initialMessages = [
+          {
+            text: "Hey, I want to know more about shipping rates 🤔",
+            className: "customer-message",
+          },
+          { text: "Shipping rates to EU countries", className: "bot-message" },
+          { text: "Shipping rates to USA", className: "bot-message" },
+          {
+            text: "Hey 👋 $5 standard shipping in the contiguous USA on orders under $50",
+            className: "bot-message",
+          },
+          { text: "👍", className: "bot-message" },
+          { text: "👎", className: "bot-message" },
+        ];
+        initialMessages.forEach((msg) =>
+          appendMessage(msg.text, msg.className)
+        );
+      });
+
+      function toggleChatbot() {
+        const chatbot = document.querySelector(".chatbot");
+        const chatbotButton = document.querySelector(".chatbot-button");
+        if (chatbot.style.display === "none" || chatbot.style.display === "") {
+          chatbot.style.display = "flex";
+          chatbotButton.style.display = "none";
+        } else {
+          chatbot.style.display = "none";
+          chatbotButton.style.display = "flex";
+        }
+      }
+
+      function handleKeyPress(event) {
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+      }
+
+      function sendMessage() {
+        const userInput = document.getElementById("userInput");
+        const message = userInput.value.trim();
+        if (message) {
+          appendMessage(message, "customer-message");
+          userInput.value = "";
+          setTimeout(() => {
+            appendMessage("This is a bot response.", "bot-message");
+          }, 500);
+        }
+      }
+
+      function appendMessage(text, className) {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", className);
+        messageElement.textContent = text;
+        document.getElementById("chatbot-body").appendChild(messageElement);
+        scrollToBottom();
+      }
+
+      function scrollToBottom() {
+        const chatbotBody = document.getElementById("chatbot-body");
+        chatbotBody.scrollTop = chatbotBody.scrollHeight;
+      }
+
+      function uploadFile() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/summarize", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.summaries) {
+              data.summaries.forEach((summary) => {
+                appendMessage(summary, "bot-message");
+              });
+            } else if (data.error) {
+              appendMessage(data.error, "bot-message");
+            }
+          })
+          .catch((error) => {
+            appendMessage(
+              "An error occurred while processing the file.",
+              "bot-message"
+            );
+          });
+      }
+    </script>
+  </body>
+</html>
